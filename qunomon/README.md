@@ -1,145 +1,167 @@
 # qunomon
 
-## Description
+## Overview
 
-A testbed for testing and managing AI system qualities.
+`qunomon` is an experimental AI system quality testbed for managing and validating AI system components. It combines frontend, backend, integration provider, storage, and workflow orchestration with a reverse proxy layer to support development and evaluation.
 
-## Demo
+## Architecture
 
-Sorry. Not deployment public server at alpha version.
+The repository contains the following main components:
 
-## Requirement
+- `src/frontend/` - Vue.js frontend application
+- `src/backend/` - Flask-based backend API service
+- `src/integration-provider/` - integration provider service
+- `src/storage/` - PostgreSQL storage and related schemas
+- `src/docker-airflow/` - Airflow orchestration environment
+- `src/reverse-proxy-resty-local/` - local reverse proxy with TLS support
 
-### Installation prerequisites
+## Requirements
 
-Support os is Windows10 Pro and macOS.
-* Windows10 Pro 1909 later
-* macOS v10.15 later
+### Supported platforms
 
-### Installation
+- Windows 10 Pro 1909 or later
+- macOS 10.15 or later
 
-* [docker desktop](https://www.docker.com/products/docker-desktop) 2.3.0.3 or later
+### Required software
 
-## Usage
+- Docker Desktop 2.3.0.3 or later
+- Git
+- Python 3.9.x for local development
 
-### 1.launch
+## Quick Start (Docker)
 
-Execute the following command as root of this repository.
+From the repository root, start the full environment:
 
 ```sh
-  docker compose up -d
+docker compose up -d
 ```
 
-### 2.Certificate introduce 
-```
-　・ Open "Settings" ⇒ "Privacy & Security" ⇒ "Security" ⇒ "Certificate Management" from the chrome menu and settings.
+If your system uses the legacy `docker-compose` binary, run:
 
-　・ Import the certificate with "Trusted Root Certification Authorities"
-       Certificate name : ca.crt
-       Folder path      : {checkout_dir}\qai-testbed\src\reverse-proxy\ssl\cert
-       Type             : Trusted Root Certification Authorities
+```sh
+docker-compose up -d
 ```
 
-### 3.access web browser
+This command starts the following services:
 
+- reverse-proxy
+- frontend web server
+- backend API
+- integration provider API
+- PostgreSQL storage
+- Airflow scheduler/webserver/worker
+- Redis and pgAdmin
+
+## Access URLs
+
+- Reverse proxy (HTTPS): `https://127.0.0.1:443/`
+- Reverse proxy (HTTP): `http://127.0.0.1:8888/`
+- Frontend raw app: `http://127.0.0.1:8000/`
+- Airflow UI: `http://127.0.0.1:8180/`
+- pgAdmin: `http://127.0.0.1:5051/`
+
+## TLS Certificate
+
+The local reverse proxy uses a self-signed certificate. To avoid browser trust issues, import the root certificate located at:
+
+```text
+./src/reverse-proxy-resty-local/ssl/cert/ca.crt
 ```
-Qunomon: https://127.0.0.1:443/
 
-```
+Import it into your OS/browser as a trusted root certificate authority for local development.
 
-## Development for windows
+## Local Development
 
-### Installation
+### Backend
 
-#### 1.PackageManager
+1. Open PowerShell with administrator privileges.
+2. Create a Python virtual environment:
 
-* Launch `powershell` with administrator permission.
-
-* powershell
-    ```
-    Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-    ```
-
-#### 2.Python
-
-* powershell
-    ```
-    cinst python --version=3.9.13 -y
-    ```
-
-### Setup python virtual environment for Backend
-
-#### 1.go to the source you checked out and create a virtual environment
-
-* launch command prompt
-
-```
-cd {checkout_dir}\src\backend
+```powershell
+cd <repository-root>\src\backend
 python -m venv venv
 ```
 
-#### 2.virtual environment activate
+3. Activate the environment:
 
-```
+```powershell
 .\venv\Scripts\activate
 ```
 
-#### 3.install python package
+4. Install dependencies:
 
-```
+```powershell
 pip install -r requirements_dev.txt
 ```
 
-### Setup python virtual environment for IP
+5. Start the backend service:
 
-#### 1.go to the source you checked out and create a virtual environment
-
-* launch command prompt
-
+```powershell
+python -m entrypoint startserver
 ```
-cd {checkout_dir}\src\integration-provider
+
+### Integration Provider
+
+1. Create a Python virtual environment:
+
+```powershell
+cd <repository-root>\src\integration-provider
 python -m venv venv
 ```
-#### 2.virtual environment activate
 
-```
+2. Activate the environment:
+
+```powershell
 .\venv\Scripts\activate
 ```
 
-#### 3.install python package
+3. Install dependencies:
 
-```
+```powershell
 pip install -r constraints.txt
 ```
 
-### launch by without container
+4. Start the integration provider service:
 
-#### 1.execute bat file
-```
-start_up.bat
-```
-
-#### 2.checking web browser
-
-```
-Qunomon: http://127.0.0.1:8080/
-
-
+```powershell
+python -m entrypoint startserver
 ```
 
-#### 3.checking Backend
+### Frontend
 
-* powershell
-    ``` 
-    curl http://127.0.0.1:5000/qai-testbed/api/0.0.1/health-check
-    ```
+From the frontend directory, use Docker Compose or the Vue development server:
 
-#### 4.checking IP
+```sh
+cd <repository-root>/src/frontend
+docker-compose up -d
+```
 
-* powershell
-    ``` 
-    curl http://127.0.0.1:6000/qai-ip/api/0.0.1/health-check
-    ```
+Then visit `http://127.0.0.1:8080/`.
+
+> Note: When accessing the frontend directly, browser CORS settings may block API requests. Use a compatible browser extension or the reverse proxy path for local development.
+
+## Windows Startup Scripts
+
+The repository includes helper scripts for Windows development:
+
+- `start_up.bat` - starts storage, Airflow, backend, integration provider, and frontend
+- `start_up_backend.bat` - starts only the backend service locally
+- `start_up_ip.bat` - starts only the integration provider service locally
+- `start_up_docker_debug.bat` - debug support for Docker-based startup
+
+## Stopping Services
+
+To stop and remove the Docker environment:
+
+```sh
+docker compose down
+```
+
+or
+
+```sh
+docker-compose down
+```
 
 ## Contribution
 
@@ -147,8 +169,7 @@ Bug reports and pull requests are welcome on GitHub at [aistairc/qunomon](https:
 
 ## Disclaimer
 
-qunomon is an OSS and alpha version.
-so qunomon may cause damage to your system and data. You agree to use it at your own risk.
+`qunomon` is an open-source alpha project. It is intended for experimental use only. Use it at your own risk.
 
 ## License
 
