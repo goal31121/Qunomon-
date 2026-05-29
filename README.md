@@ -165,7 +165,7 @@ docker-compose down
 
 ## Contribution
 
-Bug reports and pull requests are welcome on GitHub at [aistairc/qunomon](https://github.com/goal31121/qunomon).
+Bug reports and pull requests are welcome on GitHub at [goal31121/qunomon](https://github.com/goal31121/qunomon).
 
 ## Disclaimer
 
